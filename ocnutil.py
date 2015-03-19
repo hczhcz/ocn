@@ -72,7 +72,7 @@ class OcnDBManager(object):
         '''create a table with a column if it does not exist'''
 
         self.cursor.execute('''
-            create table if not exists %s (%s %s);
+            create table if not exists %s (%s %s primary key);
         ''' % (
             fmtid(table),
             fmtid(colname),
@@ -96,14 +96,27 @@ class OcnDBManager(object):
         if not bool(self.cursor.fetchall()):
             # if empty
             self.cursor.execute('''
-                alter table %s add column (%s %s);
+                alter ignore table %s add column (%s %s);
             ''' % (
                 fmtid(table),
                 fmtid(colname),
                 fmttype(coltype),
             ))
 
-    def chkall(self, table, columns):
+    def setprimary(self, table, primaries):
+        '''set some columns as primary keys'''
+
+        self.cursor.execute('''
+            alter ignore table %s drop primary key, add constraint primary key (%s);
+        ''' % (
+            fmtid(table),
+            ', '.join(
+                fmtid(i)
+                for i in primaries
+            ),
+        ))
+
+    def chkall(self, table, columns, primaries):
         '''ensure a table and its columns exist or add them'''
 
         self.chktable(table, columns[0][0], columns[0][1])
@@ -111,20 +124,8 @@ class OcnDBManager(object):
         for i in columns:
             self.chkcolumn(table, i[0], i[1])
 
-    def setprimary(self, table, colnames):
-        '''set some columns as primary keys'''
+        self.setprimary(table, primaries)
 
-        self.cursor.execute('''
-            alter table %s add primary key (%s);
-        ''' % (
-            fmtid(table),
-            ', '.join(
-                fmtid(i)
-                for i in colnames
-            )
-        ))
-
-    # def insert(self, table, columns, data, unique=True):
     def insert(self, table, columns, data):
         '''add rows into a table'''
 
@@ -142,7 +143,7 @@ class OcnDBManager(object):
                     for j in i
                 ) + ')'
                 for i in data
-            )
+            ),
         ))
 
     def insertmany(self, table, columns, data, step=65536, progress=True):
@@ -191,12 +192,13 @@ if __name__ == '__main__':
         ('RENTAL_EXPIRE_TIME', 'datetime'),  # may be unavaliable
     )
 
-    dbmgr.chkall('dbtest1', columns1)
-    dbmgr.setprimary('dbtest1', (
+    primaries1 = (
         'STB_NO', 'SERVICE_CODE', 'PROVIDER',
         'ASSET_NAME', 'CONTENT_NAME',
         'RENTAL_TIME', 'RENTAL_EXPIRE_TIME'
-    ))
+    )
+
+    dbmgr.chkall('dbtest1', columns1, primaries1)
 
     dbmgr.insertmany('dbtest1', columns1, data)
 
