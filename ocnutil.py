@@ -72,8 +72,49 @@ class OcnDBTask(object):
             fmttype(coltype),
         ))
 
-    def chkcol(self, colname, coltype):
-        pass
+    def chkcolumn(self, table, colname, coltype):
+        '''add a column to a table if it does not exist'''
+
+        self.cursor.execute('''
+            select * from information_schema.columns
+                where table_schema=%s
+                    and table_name=%s
+                    and column_name=%s;
+        ''' % (
+            fmtstr(self.db),
+            fmtstr(table),
+            fmtstr(colname),
+        ))
+
+        if not bool(self.cursor.fetchall()):
+            # if empty
+            self.cursor.execute('''
+                alter table `%s` add column (`%s` %s);
+            ''' % (
+                fmtname(table),
+                fmtname(colname),
+                fmttype(coltype),
+            ))
+
+    def chkall(self, table, columns):
+        '''ensure a table and its columns exist or add them'''
+
+        self.chktable(table, columns[0][0], columns[0][1])
+
+        for i in columns:
+            self.chkcolumn(table, i[0], i[1])
+
+    # def insert(self, table, columns, data, unique=True):
+    def insert(self, table, columns, data):
+        '''add rows into a table'''
+
+        self.cursor.executemany('''
+            replace into `%s` (%s) value (%s)
+        ''' % (
+            fmtname(table),
+            ', '.join(('`' + fmtname(i[0]) + '`' for i in columns)),
+            '%s, ' * (len(columns) - 1) + '%s'
+        ), data)
 
     def __del__(self):
         '''do finalization'''
