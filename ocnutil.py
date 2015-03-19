@@ -4,13 +4,14 @@ import MySQLdb
 
 
 def fmtname(name):
-    '''convert "Abcd1234 ()?_" to "Abcd1234_____"'''
+    '''check a string; allow letters, digits and underlines only'''
 
-    charset = string.ascii_letters + string.digits
-    return ''.join((
-        i if i in charset else '_' for i in name
-    ))
+    charset = string.ascii_letters + string.digits + '_'
+    for i in name:
+        if i not in charset:
+            raise Exception('bad id: ' + name)
 
+    return name
 
 def fmttype(name):
     '''convert ("char", 3) to "char(3)" or "int" to "int"'''
