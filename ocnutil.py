@@ -46,9 +46,10 @@ class OcnDBTask(object):
         db='ocnutilpy',
         user='ocnutilpy',
         passwd='ocnutilpy',
-        table='data',
         charset='utf8',
     ):
+        '''do initialization; connect to the database'''
+
         self.conn = MySQLdb.connect(
             host=host,
             port=port,
@@ -58,15 +59,15 @@ class OcnDBTask(object):
             charset=charset,
         )
         self.cursor = self.conn.cursor()
-        self.table = table
+        self.db = db
 
-    def chktable(self, colname, coltype):
+    def chktable(self, table, colname, coltype):
         '''create a table with a column if it does not exist'''
 
         self.cursor.execute('''
-            create table if not exists %s(%s %s);
+            create table if not exists `%s` (`%s` %s);
         ''' % (
-            fmtname(self.table),
+            fmtname(table),
             fmtname(colname),
             fmttype(coltype),
         ))
@@ -75,6 +76,8 @@ class OcnDBTask(object):
         pass
 
     def __del__(self):
+        '''do finalization'''
+
         self.conn.commit()
         self.cursor.close()
         self.conn.close()
@@ -87,6 +90,7 @@ class OcnDBTask(object):
 
 def loadfile(path):
     '''read file as a string'''
+
     return open(path, 'r').read()
 
 
