@@ -38,7 +38,7 @@ def fmttype(typeinfo):
         )) + ')'
 
 
-class OcnDBTask(object):
+class OcnDBManager(object):
     def __init__(
         self,
         host='localhost',
@@ -124,37 +124,27 @@ class OcnDBTask(object):
         self.conn.close()
 
 
-# class OcnDBLoadTask(OcnDBTask):
-#     def __init__():
-#         super(OcnDBTask, self)
+# def loadfile(path):
+#     '''read file as a string'''
 
-
-def loadfile(path):
-    '''read file as a string'''
-
-    return open(path, 'r').read()
+#     return open(path, 'r').read()
 
 
 if __name__ == '__main__':
-    task = OcnDBTask()
-    # task.chktable('test1', 'c5', ('char', 123))
-    # task.chkcolumn('test1', 'c3', ('char', 123))
-    # task.chkcolumn('test1', 'c4', ('char', 123))
-    task.chkall('test1', (
-        ('c1', 'int'), ('c2', ('char', 2)), ('c3', 'int')
-    ))
-    task.insert('test1', (
-        ('c1', 'int'), ('c2', ('char', 2)), ('c3', 'int')
-    ), (
-        (1, 2, 3), (2, 3, 4)
-    ))
-    task.insert('test1', (
-        ('c1', 'int'), ('c3', 'int'), ('c2', ('char', 2))
-    ), (
-        (11, 22, 33), (22,33,44)
-    ))
-    task.insert('test1', (
-        ('c1', 'int'), ('c3', 'int'), ('c2', ('char', 2), ('dd', 'int'))
-    ), (
-        (11, 22, 33,123),(11, 22, 33,123)
-    ))
+    dbmgr = OcnDBManager()
+    # dbmgr.chktable('test1', 'c5', ('char', 123))
+    # dbmgr.chkcolumn('test1', 'c3', ('char', 123))
+    # dbmgr.chkcolumn('test1', 'c4', ('char', 123))
+    # dbmgr.chkall('test1', (
+    #     ('c1', 'int'), ('c2', ('char', 2)), ('c3', 'int')
+    # ))
+    # dbmgr.insert('test1', (
+    #     ('c1', 'int'), ('c2', ('char', 2)), ('c3', 'int')
+    # ), (
+    #     (1, 2, 3), (2, 3, 4)
+    # ))
+    # dbmgr.insert('test1', (
+    #     ('c1', 'int'), ('c3', 'int'), ('c2', ('char', 2))
+    # ), (
+    #     (11, 22, 33), (22, 33, 44)
+    # ))
