@@ -111,6 +111,19 @@ class OcnDBManager(object):
         for i in columns:
             self.chkcolumn(table, i[0], i[1])
 
+    def setprimary(self, table, colnames):
+        '''set some columns as primary keys'''
+
+        self.cursor.execute('''
+            alter table %s add primary key (%s);
+        ''' % (
+            fmtid(table),
+            ', '.join(
+                fmtid(i)
+                for i in colnames
+            )
+        ))
+
     # def insert(self, table, columns, data, unique=True):
     def insert(self, table, columns, data):
         '''add rows into a table'''
@@ -168,7 +181,7 @@ if __name__ == '__main__':
         if len(i) == 181 and i[2] == ':'
     ]
 
-    columns = (
+    columns1 = (
         ('STB_NO', ('char', 17)),
         ('SERVICE_CODE', 'int'),
         ('PROVIDER', ('varchar', 64)),
@@ -178,8 +191,14 @@ if __name__ == '__main__':
         ('RENTAL_EXPIRE_TIME', 'datetime'),  # may be unavaliable
     )
 
-    dbmgr.chkall('dbtest1', columns)
-    dbmgr.insertmany('dbtest1', columns, data)
+    dbmgr.chkall('dbtest1', columns1)
+    dbmgr.setprimary('dbtest1', (
+        'STB_NO', 'SERVICE_CODE', 'PROVIDER',
+        'ASSET_NAME', 'CONTENT_NAME',
+        'RENTAL_TIME', 'RENTAL_EXPIRE_TIME'
+    ))
+
+    dbmgr.insertmany('dbtest1', columns1, data)
 
     # dbmgr.chktable('test1', 'c5', ('char', 123))
     # dbmgr.chkcolumn('test1', 'c3', ('char', 123))
