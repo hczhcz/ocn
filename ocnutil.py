@@ -14,6 +14,12 @@ def fmtname(name):
     return name
 
 
+def fmtid(id):
+    '''call fmtname and quote the result as an identify'''
+
+    return '`' + fmtname(id) + '`'
+
+
 def fmtint(value):
     '''build string from an integer'''
 
@@ -33,7 +39,8 @@ def fmttype(typeinfo):
         return fmtname(typeinfo)
     else:
         return fmtname(typeinfo[0]) + '(' + ', '.join(
-            fmtint(i) if type(i) == int else fmtstr(i)
+            fmtint(i)
+            if type(i) == int else fmtstr(i)
             for i in typeinfo[1:]
         ) + ')'
 
@@ -65,10 +72,10 @@ class OcnDBManager(object):
         '''create a table with a column if it does not exist'''
 
         self.cursor.execute('''
-            create table if not exists `%s` (`%s` %s);
+            create table if not exists %s (%s %s);
         ''' % (
-            fmtname(table),
-            fmtname(colname),
+            fmtid(table),
+            fmtid(colname),
             fmttype(coltype),
         ))
 
@@ -89,10 +96,10 @@ class OcnDBManager(object):
         if not bool(self.cursor.fetchall()):
             # if empty
             self.cursor.execute('''
-                alter table `%s` add column (`%s` %s);
+                alter table %s add column (%s %s);
             ''' % (
-                fmtname(table),
-                fmtname(colname),
+                fmtid(table),
+                fmtid(colname),
                 fmttype(coltype),
             ))
 
@@ -109,13 +116,20 @@ class OcnDBManager(object):
         '''add rows into a table'''
 
         self.cursor.execute('''
-            insert into `%s` (%s) values %s;
+            insert ignore into %s (%s) values %s;
         ''' % (
-            fmtname(table),
-            ', '.join('`' + fmtname(i[0]) + '`' for i in columns),
-            ', '.join('(' +
-                ', '.join(fmtstr(j) for j in i)
-            + ')' for i in data)
+            fmtid(table),
+            ', '.join(
+                fmtid(i[0])
+                for i in columns
+            ),
+            ', '.join(
+                '(' + ', '.join(
+                    fmtstr(j)
+                    for j in i
+                ) + ')'
+                for i in data
+            )
         ))
 
     def insertmany(self, table, columns, data, step=65536, progress=True):
