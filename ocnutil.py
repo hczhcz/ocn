@@ -32,10 +32,10 @@ def fmttype(typeinfo):
     if type(typeinfo) == str:
         return fmtname(typeinfo)
     else:
-        return fmtname(typeinfo[0]) + '(' + ', '.join((
+        return fmtname(typeinfo[0]) + '(' + ', '.join(
             fmtint(i) if type(i) == int else fmtstr(i)
             for i in typeinfo[1:]
-        )) + ')'
+        ) + ')'
 
 
 class OcnDBManager(object):
@@ -108,13 +108,28 @@ class OcnDBManager(object):
     def insert(self, table, columns, data):
         '''add rows into a table'''
 
-        self.cursor.executemany('''
-            replace into `%s` (%s) value (%s)
+        self.cursor.execute('''
+            insert into `%s` (%s) values %s;
         ''' % (
             fmtname(table),
-            ', '.join(('`' + fmtname(i[0]) + '`' for i in columns)),
-            '%s, ' * (len(columns) - 1) + '%s'
-        ), data)
+            ', '.join('`' + fmtname(i[0]) + '`' for i in columns),
+            ', '.join('(' +
+                ', '.join(fmtstr(j) for j in i)
+            + ')' for i in data)
+        ))
+
+    def insertmany(self, table, columns, data, step=65536, progress=True):
+        '''add rows step by step (separated)'''
+
+        start = 0
+        fin = len(data)
+
+        while start < fin:
+            if progress:
+                print 'Now:', start, 'Total:', fin
+            self.insert(table, columns, data[start:start+step])
+            self.conn.commit()
+            start += step
 
     def __del__(self):
         '''do finalization'''
@@ -135,7 +150,7 @@ if __name__ == '__main__':
 
     data = [
         i.strip().split('|')
-        for i in loadfile('/dev/shm/test.txt')[:100000]
+        for i in loadfile('/dev/shm/test.txt')
         if len(i) == 181 and i[2] == ':'
     ]
 
@@ -150,7 +165,7 @@ if __name__ == '__main__':
     )
 
     dbmgr.chkall('dbtest1', columns)
-    dbmgr.insert('dbtest1', columns, data)
+    dbmgr.insertmany('dbtest1', columns, data)
 
     # dbmgr.chktable('test1', 'c5', ('char', 123))
     # dbmgr.chkcolumn('test1', 'c3', ('char', 123))
