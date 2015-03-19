@@ -13,13 +13,29 @@ def fmtname(name):
 
     return name
 
-def fmttype(name):
+
+def fmtint(value):
+    '''build string from an integer'''
+
+    return str(int(value))
+
+
+def fmtstr(value):
+    '''call MySQLdb.string_literal'''
+
+    return MySQLdb.string_literal(value)
+
+
+def fmttype(typeinfo):
     '''convert ("char", 3) to "char(3)" or "int" to "int"'''
 
-    if type(name) == str:
-        return fmtname(name)
+    if type(typeinfo) == str:
+        return fmtname(typeinfo)
     else:
-        return fmtname(name[0]) + '(' + str(int(name[1])) + ')'
+        return fmtname(typeinfo[0]) + '(' + ', '.join((
+            fmtint(i) if type(i) == int else fmtstr(i)
+            for i in typeinfo[1:]
+        )) + ')'
 
 
 class OcnDBTask(object):
