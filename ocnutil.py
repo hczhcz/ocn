@@ -136,5 +136,25 @@ def loadfile(path):
 
 
 if __name__ == '__main__':
-    task = OcnDBTask(table='test1')
-    task.chktable('col1', ('char', 123))
+    task = OcnDBTask()
+    # task.chktable('test1', 'c5', ('char', 123))
+    # task.chkcolumn('test1', 'c3', ('char', 123))
+    # task.chkcolumn('test1', 'c4', ('char', 123))
+    task.chkall('test1', (
+        ('c1', 'int'), ('c2', ('char', 2)), ('c3', 'int')
+    ))
+    task.insert('test1', (
+        ('c1', 'int'), ('c2', ('char', 2)), ('c3', 'int')
+    ), (
+        (1, 2, 3), (2, 3, 4)
+    ))
+    task.insert('test1', (
+        ('c1', 'int'), ('c3', 'int'), ('c2', ('char', 2))
+    ), (
+        (11, 22, 33), (22,33,44)
+    ))
+    task.insert('test1', (
+        ('c1', 'int'), ('c3', 'int'), ('c2', ('char', 2), ('dd', 'int'))
+    ), (
+        (11, 22, 33,123),(11, 22, 33,123)
+    ))
