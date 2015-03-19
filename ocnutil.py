@@ -124,14 +124,34 @@ class OcnDBManager(object):
         self.conn.close()
 
 
-# def loadfile(path):
-#     '''read file as a string'''
+def loadfile(path):
+    '''read file as a list'''
 
-#     return open(path, 'r').read()
+    return open(path, 'r').readlines()
 
 
 if __name__ == '__main__':
     dbmgr = OcnDBManager()
+
+    data = [
+        i.strip().split('|')
+        for i in loadfile('/dev/shm/test.txt')[:100000]
+        if len(i) == 181 and i[2] == ':'
+    ]
+
+    columns = (
+        ('STB_NO', ('char', 17)),
+        ('SERVICE_CODE', 'int'),
+        ('PROVIDER', ('varchar', 64)),
+        ('ASSET_NAME', ('varchar', 64)),
+        ('CONTENT_NAME', ('varchar', 64)),
+        ('RENTAL_TIME', 'datetime'),
+        ('RENTAL_EXPIRE_TIME', 'datetime'),  # may be unavaliable
+    )
+
+    dbmgr.chkall('dbtest1', columns)
+    dbmgr.insert('dbtest1', columns, data)
+
     # dbmgr.chktable('test1', 'c5', ('char', 123))
     # dbmgr.chkcolumn('test1', 'c3', ('char', 123))
     # dbmgr.chkcolumn('test1', 'c4', ('char', 123))
