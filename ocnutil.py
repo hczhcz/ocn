@@ -1,4 +1,4 @@
-# import os, time, xml
+import os
 import string
 import MySQLdb
 
@@ -186,6 +186,11 @@ def loadfile(path):
 
     return open(path, 'r').readlines()
 
+
+def listfile(path):
+    '''list all files in a directory'''
+
+    os.listdir(rootdir)
 
 if __name__ == '__main__':
     dbmgr = OcnDBManager()
