@@ -159,6 +159,20 @@ class OcnDBManager(object):
             self.conn.commit()
             start += step
 
+    def insertmany2(self, table, columns, data):
+        '''add rows into a table'''
+
+        self.cursor.executemany('''
+            insert ignore into %s (%s) value (%s);
+        ''' % (
+            fmtid(table),
+            ', '.join(
+                fmtid(i[0])
+                for i in columns
+            ),
+            '%s, ' * (len(columns) - 1) + '%s',
+        ), data)
+
     def __del__(self):
         '''do finalization'''
 
@@ -181,6 +195,11 @@ if __name__ == '__main__':
         for i in loadfile('/dev/shm/test.txt')
         if len(i) == 181 and i[2] == ':'
     ]
+
+    # fix
+    for i in data:
+        if i[6] == '':
+            i[6] = i[5]
 
     columns1 = (
         ('STB_NO', ('char', 17)),
