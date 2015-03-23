@@ -107,7 +107,8 @@ class OcnDBManager(object):
         '''set some columns as primary keys'''
 
         self.cursor.execute('''
-            alter ignore table %s drop primary key, add constraint primary key (%s);
+            alter ignore table %s drop primary key,
+                add constraint primary key (%s);
         ''' % (
             fmtid(table),
             ', '.join(
@@ -155,7 +156,7 @@ class OcnDBManager(object):
         while start < fin:
             if progress:
                 print 'Now:', start, 'Total:', fin
-            self.insert(table, columns, data[start:start+step])
+            self.insert(table, columns, data[start:start + step])
             self.conn.commit()
             start += step
 
@@ -190,4 +191,4 @@ def loadfile(path):
 def listfile(path):
     '''list all files in a directory'''
 
-    os.listdir(rootdir)
+    return [path + i for i in os.listdir(path)]
