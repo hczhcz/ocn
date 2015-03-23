@@ -14,5 +14,5 @@ primaries_db = (
     'STB_NO',
     # 'SERVICE_CODE', 'PROVIDER',
     # 'ASSET_NAME', 'CONTENT_NAME',
-    'RENTAL_TIME', 'RENTAL_EXPIRE_TIME'
+    'RENTAL_TIME', 'RENTAL_EXPIRE_TIME',
 )

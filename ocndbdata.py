@@ -17,11 +17,11 @@ for path in target:
     print '==== file: ' + path + ' ===='
 
     # path = '/dev/shm/test.txt'
-    data = [
+    data = tuple(
         i.strip().split('|')
         for i in loadfile(path)
         if len(i) == 181 and i[2] == ':' and i[15] + i[16] == '00'
-    ]
+    )
 
     # fix
     for i in data:

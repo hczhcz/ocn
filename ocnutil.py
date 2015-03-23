@@ -191,4 +191,4 @@ def loadfile(path):
 def listfile(path):
     '''list all files in a directory'''
 
-    return [path + i for i in os.listdir(path)]
+    return tuple(path + i for i in os.listdir(path))
