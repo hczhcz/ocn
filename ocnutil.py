@@ -174,6 +174,34 @@ class OcnDBManager(object):
             '%s, ' * (len(columns) - 1) + '%s',
         ), data)
 
+    def query(self, table, columns, expr, expr_data, orders, fetch=True):
+        '''do a query (unique values)'''
+
+        self.cursor.execute('''
+            select distinct %s from %s where %s order by %s
+        ''' % (
+            ', '.join(
+                fmtid(i[0])
+                for i in columns
+            ),
+            fmtid(table),
+            expr,  # raw
+            ', '.join(
+                (
+                    fmtid(i) + ' asc'
+                    if i[0] != '-'
+                    else fmtid(i[1:]) + ' desc'
+                )
+                for i in orders
+            ),
+        ), expr_data)
+
+        if fetch:
+            return self.cursor.fetchall()
+        else:
+            # return lambda: self.cursor.fetchone()
+            return self.cursor.fetch
+
     def __del__(self):
         '''do finalization'''
 
