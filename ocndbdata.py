@@ -1,35 +1,31 @@
-from ocnutil import *
+from ocnutil import OcnDBManager, loadfile, listfile
+from ocnformat import table_db, columns_db, primaries_db
+
+print '==== initialize db ===='
 
 dbmgr = OcnDBManager()
+dbmgr.chkall(table_db, columns_db, primaries_db)
 
-data = [
-    i.strip().split('|')
-    for i in loadfile('/dev/shm/test.txt')
-    if len(i) == 181 and i[2] == ':'
-]
+print '==== list files ===='
 
-# fix
-for i in data:
-    if i[6] == '':
-        i[6] = i[5]
-
-columns1 = (
-    ('STB_NO', ('char', 17)),
-    ('SERVICE_CODE', 'int'),
-    ('PROVIDER', ('varchar', 64)),
-    ('ASSET_NAME', ('varchar', 64)),
-    ('CONTENT_NAME', ('varchar', 64)),
-    ('RENTAL_TIME', 'datetime'),
-    ('RENTAL_EXPIRE_TIME', 'datetime'),  # may be unavaliable
+target = (
+    listfile('20130101-0109/')
+    + listfile('20130110-0116/')
 )
 
-primaries1 = (
-    'STB_NO',
-    # 'SERVICE_CODE', 'PROVIDER',
-    # 'ASSET_NAME', 'CONTENT_NAME',
-    'RENTAL_TIME', 'RENTAL_EXPIRE_TIME'
-)
+for path in target:
+    print '==== file: ' + path + ' ===='
 
-dbmgr.chkall('dbtest1', columns1, primaries1)
+    # path = '/dev/shm/test.txt'
+    data = [
+        i.strip().split('|')
+        for i in loadfile(path)
+        if len(i) == 181 and i[2] == ':' and i[15] + i[16] == '00'
+    ]
 
-dbmgr.insertmany('dbtest1', columns1, data)
+    # fix
+    for i in data:
+        if i[6] == '':
+            i[6] = i[5]
+
+    dbmgr.insertmany(table_db, columns_db, data)
