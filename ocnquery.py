@@ -11,7 +11,9 @@ users = dbmgr.query(
     ('STB_NO',)
 )
 
-rdata = [0] * 1440
+rdata = [0] * 2880
+rscale = 30
+
 rlim = 600
 
 for user in users:
@@ -34,11 +36,14 @@ for user in users:
             if i[-2] - rdata_end > datetime.timedelta(0, rlim):
                 seconds = (rdata_end - rdata_begin).total_seconds()
 
-                for j in range(int(round(seconds * 0.01))):
-                    key = seconds / 60 * (0.9 + 0.2 * random.random())
+                for j in range(int(round(seconds / rscale)) + 1):
+                    key = seconds / rscale * (0.9 + 0.2 * random.random())
                     rdata[int(round(key))] += 1
 
                 rdata_begin = i[-2]
             rdata_end = i[-1]
 
-print rdata[:720]
+plotdata = rdata[:len(rdata) / 4]
+
+for i in range(len(plotdata)):
+    print '{' + str(i * rscale / 60.0) + ',' + str(plotdata[i]) + '},'
