@@ -16,3 +16,11 @@ primaries_db = (
     # 'ASSET_NAME', 'CONTENT_NAME',
     'RENTAL_TIME', 'RENTAL_EXPIRE_TIME',
 )
+
+columns_cat = (
+    ('description', ('varchar', 64)),  # TODO
+)
+
+primaries_cat = (
+    'description',
+)
