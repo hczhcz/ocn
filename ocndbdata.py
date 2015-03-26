@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 from ocnutil import OcnDBManager, loadfile, listfile
 from ocnformat import table_db, columns_db, primaries_db
 

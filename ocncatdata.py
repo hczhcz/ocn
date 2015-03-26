@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 from xml.etree import ElementTree
 from ocnutil import OcnDBManager, listfile
 from ocnformat import table_cat, columns_cat, primaries_cat, map_cat

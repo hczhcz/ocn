@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 table_db = 'dbtest2'
 
 columns_db = (

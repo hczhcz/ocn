@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 import datetime
 import random
 from ocnutil import OcnDBManager
