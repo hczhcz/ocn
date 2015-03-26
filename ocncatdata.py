@@ -10,9 +10,9 @@ c_attr = set()
 c_title_attr = set()
 c_movie_attr = set()
 c_poster_attr = set()
-c_title_ams = set()
-c_movie_ams = set()
-c_poster_ams = set()
+c_title_ams = {}
+c_movie_ams = {}
+c_poster_ams = {}
 
 print '==== list files ===='
 
@@ -32,15 +32,30 @@ for path in target:
     poster = or_none(alldata.getiterator('poster'))[0]
 
     c_attr |= set(alldata.attrib)
-    if title:
+    if title is not None:
         c_title_attr |= set(title.attrib)
-        c_title_ams |= {i.get('name') for i in title.getiterator('metadata')}
-    if movie:
+        for i in title.getiterator('metadata'):
+            if i.get('name') in c_title_ams:
+                if c_title_ams[i.get('name')] < len(i.get('value')):
+                    c_title_ams[i.get('name')] = len(i.get('value'))
+            else:
+                c_title_ams[i.get('name')] = len(i.get('value'))
+    if movie is not None:
         c_movie_attr |= set(movie.attrib)
-        c_movie_ams |= {i.get('name') for i in movie.getiterator('metadata')}
-    if poster:
+        for i in movie.getiterator('metadata'):
+            if i.get('name') in c_movie_ams:
+                if c_movie_ams[i.get('name')] < len(i.get('value')):
+                    c_movie_ams[i.get('name')] = len(i.get('value'))
+            else:
+                c_movie_ams[i.get('name')] = len(i.get('value'))
+    if poster is not None:
         c_poster_attr |= set(poster.attrib)
-        c_poster_ams |= {i.get('name') for i in poster.getiterator('metadata')}
+        for i in poster.getiterator('metadata'):
+            if i.get('name') in c_poster_ams:
+                if c_poster_ams[i.get('name')] < len(i.get('value')):
+                    c_poster_ams[i.get('name')] = len(i.get('value'))
+            else:
+                c_poster_ams[i.get('name')] = len(i.get('value'))
 
     print c_attr
     print c_title_attr
