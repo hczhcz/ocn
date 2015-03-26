@@ -17,6 +17,8 @@ primaries_db = (
     'RENTAL_TIME', 'RENTAL_EXPIRE_TIME',
 )
 
+table_cat = table_db + '_cat'
+
 columns_cat = (
     ('OFFERING_ID', 'int'),
     ('PRICE', 'int'),

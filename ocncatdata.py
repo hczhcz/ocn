@@ -1,27 +1,36 @@
 from xml.etree import ElementTree
 from ocnutil import OcnDBManager, listfile
+from ocnformat import table_cat, columns_cat, primaries_cat, map_cat
 
 print '==== initialize db ===='
 
 dbmgr = OcnDBManager()
-
-# columns_checked = []
-c_attr = set()
-c_title_attr = set()
-c_movie_attr = set()
-c_poster_attr = set()
-c_title_ams = {}
-c_movie_ams = {}
-c_poster_ams = {}
+dbmgr.chkall(table_cat, columns_cat, primaries_cat)
 
 print '==== list files ===='
 
 target = listfile('catalog/')
 
-# xset = set()
+
+def loadattr(columns, data, tree, prefix):
+    columns += [prefix + map_cat[i] for i in tree.attrib.keys()]
+    data += [tree.attrib.values()]
+
+
+def loadmeta(columns, data, tree, prefix):
+    mlist = tree.getiterator('metadata')
+    columns += [prefix + i.get('name') for i in mlist]
+    data += [i.get('value') for i in mlist]
+
+
+start = 0
+fin = len(target)
 
 for path in target:
-    print '==== file: ' + path + ' ===='
+    # print '==== file: ' + path + ' ===='
+    if start % 256 == 0:
+        print 'Now:', start, 'Total:', fin
+    start += 1
 
     or_none = lambda x: x if x else [None]
 
@@ -31,53 +40,21 @@ for path in target:
     movie = or_none(alldata.getiterator('movie'))[0]
     poster = or_none(alldata.getiterator('poster'))[0]
 
-    c_attr |= set(alldata.attrib)
+    columns = []
+    data = []
+
+    loadattr(columns, data, alldata, '')
+
     if title is not None:
-        c_title_attr |= set(title.attrib)
-        for i in title.getiterator('metadata'):
-            if i.get('name') in c_title_ams:
-                if c_title_ams[i.get('name')] < len(i.get('value')):
-                    c_title_ams[i.get('name')] = len(i.get('value'))
-            else:
-                c_title_ams[i.get('name')] = len(i.get('value'))
+        loadattr(columns, data, title, 'TITLE_')
+        loadmeta(columns, data, title, 'TITLE_')
+
     if movie is not None:
-        c_movie_attr |= set(movie.attrib)
-        for i in movie.getiterator('metadata'):
-            if i.get('name') in c_movie_ams:
-                if c_movie_ams[i.get('name')] < len(i.get('value')):
-                    c_movie_ams[i.get('name')] = len(i.get('value'))
-            else:
-                c_movie_ams[i.get('name')] = len(i.get('value'))
+        loadattr(columns, data, movie, 'MOVIE_')
+        loadmeta(columns, data, movie, 'MOVIE_')
+
     if poster is not None:
-        c_poster_attr |= set(poster.attrib)
-        for i in poster.getiterator('metadata'):
-            if i.get('name') in c_poster_ams:
-                if c_poster_ams[i.get('name')] < len(i.get('value')):
-                    c_poster_ams[i.get('name')] = len(i.get('value'))
-            else:
-                c_poster_ams[i.get('name')] = len(i.get('value'))
+        loadattr(columns, data, poster, 'POSTER_')
+        loadmeta(columns, data, poster, 'POSTER_')
 
-    print c_attr
-    print c_title_attr
-    print c_movie_attr
-    print c_poster_attr
-    print c_title_ams
-    print c_movie_ams
-    print c_poster_ams
-
-
-    # print alldata.attrib
-    # print description.text
-    # if title:
-    #     print title.attrib
-    #     print [i.attrib for i in title.getiterator('metadata')]
-    # if movie:
-    #     print movie.attrib
-    # if poster:
-    #     print poster.attrib
-
-    # for i in alldata.getchildren():
-    #     print i.tag
-    #     xset.add(i.tag)
-    #     print xset
-    #print alldata.getiterator('movies')
+    dbmgr.insertmany(table_cat, columns, data)

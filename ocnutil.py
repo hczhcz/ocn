@@ -6,7 +6,7 @@ import MySQLdb
 def fmtname(name):
     '''check a string; allow letters, digits and underlines only'''
 
-    charset = string.ascii_letters + string.digits + '_'
+    charset = string.ascii_letters + string.digits + '_:'
     for i in name:
         if i not in charset:
             raise Exception('bad id: ' + name)
