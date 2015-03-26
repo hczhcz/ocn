@@ -1,8 +1,13 @@
 # -*- coding: UTF-8 -*-
 
+import sys
 from xml.etree import ElementTree
 from ocnutil import OcnDBManager, listfile
 from ocnformat import table_cat, columns_cat, primaries_cat, map_cat
+
+# hack
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 print '==== initialize db ===='
 
@@ -15,13 +20,13 @@ target = listfile('catalog/')
 
 
 def loadattr(columns, data, tree, prefix):
-    columns += [prefix + map_cat[i] for i in tree.attrib.keys()]
-    data += [tree.attrib.values()]
+    columns += [(prefix + map_cat[i],) for i in tree.attrib.keys()]
+    data += tree.attrib.values()
 
 
 def loadmeta(columns, data, tree, prefix):
     mlist = tree.getiterator('metadata')
-    columns += [prefix + i.get('name') for i in mlist]
+    columns += [(prefix + i.get('name'),) for i in mlist]
     data += [i.get('value') for i in mlist]
 
 
@@ -42,8 +47,8 @@ for path in target:
     movie = or_none(alldata.getiterator('movie'))[0]
     poster = or_none(alldata.getiterator('poster'))[0]
 
-    columns = []
-    data = []
+    columns = [('DESCRIPTION',)]
+    data = [description.text]
 
     loadattr(columns, data, alldata, '')
 
@@ -59,4 +64,6 @@ for path in target:
         loadattr(columns, data, poster, 'POSTER_')
         loadmeta(columns, data, poster, 'POSTER_')
 
-    dbmgr.insertmany(table_cat, columns, data)
+    # print columns, data
+
+    dbmgr.insert(table_cat, columns, (data,))
