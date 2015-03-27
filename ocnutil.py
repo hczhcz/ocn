@@ -69,16 +69,20 @@ class OcnDBManager(object):
         )
         self.cursor = self.conn.cursor()
         self.db = db
+        self.charset = charset
 
     def chktable(self, table, colname, coltype):
         '''create a table with a column if it does not exist'''
 
         self.cursor.execute('''
-            create table if not exists %s (%s %s primary key);
+            create table if not exists %s (%s %s primary key %s);
         ''' % (
             fmtid(table),
             fmtid(colname),
             fmttype(coltype),
+            'character set ' + self.charset
+            if coltype[0] in {'char', 'varchar'} or coltype == 'text'
+            else '',
         ))
 
     def chkcolumn(self, table, colname, coltype):
@@ -98,11 +102,14 @@ class OcnDBManager(object):
         if not bool(self.cursor.fetchall()):
             # if empty
             self.cursor.execute('''
-                alter ignore table %s add column (%s %s);
+                alter ignore table %s add column (%s %s %s);
             ''' % (
                 fmtid(table),
                 fmtid(colname),
                 fmttype(coltype),
+                'character set ' + self.charset
+                if coltype[0] in {'char', 'varchar'} or coltype == 'text'
+                else '',
             ))
 
     def setprimary(self, table, primaries):

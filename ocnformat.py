@@ -30,7 +30,7 @@ columns_cat = (
     ('MODIFIED_TIME', 'datetime'),
     ('SERVICE_NAME', ('varchar', 64)),
     ('SERVICE_CODE', 'int'),
-    ('PACKAGE_NAME', ('char', 20)),
+    ('PACKAGE_NAME', ('varchar', 64)),
 
     ('DESCRIPTION', 'text'),
 
